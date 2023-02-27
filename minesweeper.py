@@ -26,7 +26,7 @@ class Cell():
         button = customtkinter.CTkButton(location, width = 10, height = 32, border_width = 2, corner_radius = 1, text = "hej")
         self.button_object = button
 
-
+# stolen from https://www.youtube.com/watch?v=OqbGRZx4xUc
 for x in range(8):
     for y in range(10):
         c = Cell()
