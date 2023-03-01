@@ -1,4 +1,5 @@
 import customtkinter
+import tkinter
 import random
 #from https://github.com/TomSchimansky/CustomTkinter/blob/master/examples/simple_example.py
 customtkinter.set_appearance_mode("dark")  # Modes: "System" (standard), "Dark", "Light"
@@ -8,15 +9,15 @@ app = customtkinter.CTk()
 app.title("Minesweeper")
 app.resizable(False, False)
 
-def grid_size():
-    size2 = customtkinter.CTkInputDialog(text = "type in small, medium or large: ")
-    #size2.get_string()
-    size = input("type in small, medium or large: ")
 
+#function to get GRID size from user
+def grid_size():
+    size_question = customtkinter.CTkInputDialog(text = "type in small, medium or large: ")
+    size = size_question.get_input()
     if size.lower() == "small":
         r = 5
         c = 8
-        n = 2
+        n = 6
         geo_x = 390
         geo_y = 400
     elif size.lower() == "medium":
@@ -31,7 +32,7 @@ def grid_size():
         n = 20
         geo_x = 640
         geo_y = 630
-    return r, c, n, geo_x, geo_y, size2
+    return r, c, n, geo_x, geo_y
 
 size = grid_size()
 r = size[0]
@@ -42,6 +43,7 @@ geo_y = size[4]
 
 app.geometry("{x}x{y}".format(x = geo_x, y = geo_y))
 
+#frame_1 = background / mainwindow, frame_2 = GRID, frame_3 = end of game
 frame_1 = customtkinter.CTkFrame(master = app)
 frame_1.pack(pady = 20, padx = 60, fill = "both", expand = True)
 frame_2 = customtkinter.CTkFrame(app, width = geo_x, height = geo_y)
@@ -64,28 +66,32 @@ class Cell():
         self.all.append(self)
 
     @staticmethod
+    #Used to count and show how many cells that are still unopened
     def cell_count(location = frame_1):
         info_cell = customtkinter.CTkLabel(location, text = "Cells left: {}".format(Cell.cell_counted))
         Cell.cell_count_object = info_cell
 
     @staticmethod
+    #Used to count and show how many mines that are still unmarked
     def mines_left(location = frame_1):
         info_mines = customtkinter.CTkLabel(location, text = "Mines left: {}".format(Cell.mine_counted))
         Cell.mine_count_object = info_mines
     
+    #Basic settings for the cell-buttons and binds "clic-events" and cells.
     def create_button(self, location = frame_2):
         #button stolen from https://github.com/TomSchimansky/CustomTkinter/wiki/CTkButton
         button = customtkinter.CTkButton(location, width = 30, height = 32, border_width = 2, corner_radius = 1, text = " ")
         button.bind('<Button-1>', self.left_click_button)
         button.bind('<Button-3>', self.right_click_button)
         self.button_object = button
-        
+    
+    #Creates the mines in random places, "n" is a variable from the grid_size function
     def create_mines():
         mines = random.sample(Cell.all, n)
         for mine in mines:
             mine.mine = True
 
-
+    #what happens after a button is left click, different outcome if the button is a mine or not
     def left_click_button(self, event):
         if self.mine:
             self.show_mine()
@@ -96,14 +102,15 @@ class Cell():
                     cell_obj.show_cell()
                     cell_obj.is_open = True
 
-
+    #if not mine
     def show_cell(self):
         if not self.is_open:
             Cell.cell_counted -= 1
-            self.button_object.configure(fg_color = "grey", width = 30, height = 32, border_width = 2, corner_radius = 1, text = self.count_mines())
+            self.button_object.configure(fg_color = "grey", text = self.count_mines())
             Cell.cell_count_object.configure(text = "Cells left: {}".format(Cell.cell_counted))
         self.is_open = True
 
+    #counts the amount of mines that
     @property
     def get_surronded_cells(self):
         surronded_cells = [
@@ -136,7 +143,6 @@ class Cell():
         frame_3.place(x = 80, y = 80)
         game_lost = customtkinter.CTkLabel(frame_3, text = "BOOOM")
         game_lost.place(x = geo_x * 0.3, y = geo_y * 0.2)
-        print("YOU LOST!")
     
         
     def right_click_button(self, event):
@@ -153,7 +159,6 @@ class Cell():
             frame_3.place(x = 80, y = 80)
             game_won = customtkinter.CTkLabel(frame_3, text = "You won!")
             game_won.place(x = geo_x * 0.3, y = geo_y * 0.2)
-            print("YOU WON")
 
     def __repr__(self):
         return "cell({y}, {x}).".format(y = self.y, x = self.x)
