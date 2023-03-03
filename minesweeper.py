@@ -106,7 +106,10 @@ class Cell():
     def show_cell(self):
         if not self.is_open:
             Cell.cell_counted -= 1
-            self.button_object.configure(fg_color = "grey", text = self.count_mines())
+            if self.count_mines() == 0:
+                self.button_object.configure(fg_color = "grey", text = "")
+            else:
+                self.button_object.configure(fg_color = "grey", text = self.count_mines())
             Cell.cell_count_object.configure(text = "Cells left: {}".format(Cell.cell_counted))
         self.is_open = True
 
